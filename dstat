@@ -1635,23 +1635,25 @@ class dstat_zones(dstat):
 ### END STATS DEFINITIONS ###
 
 ansi = {
-    'black': '\033[0;30m',
-    'darkred': '\033[0;31m',
-    'darkgreen': '\033[0;32m',
-    'darkyellow': '\033[0;33m',
-    'darkblue': '\033[0;34m',
-    'darkmagenta': '\033[0;35m',
-    'darkcyan': '\033[0;36m',
-    'gray': '\033[0;37m',
+    'black'    : '\033[0;30m',
+    'darkgray' : '\033[1;30m',
+    'gray'     : '\033[0;37m',
+    'white'    : '\033[1;37m',
 
-    'darkgray': '\033[1;30m',
-    'red': '\033[1;31m',
-    'green': '\033[1;32m',
-    'yellow': '\033[1;33m',
-    'blue': '\033[1;34m',
+    'darkred'    : '\033[0;31m',
+    'darkyellow' : '\033[0;33m',
+    'darkgreen'  : '\033[0;32m',
+    'darkcyan'   : '\033[0;36m',
+    'darkblue'   : '\033[0;34m',
+    'darkmagenta': '\033[0;35m',
+
+    'red'    : '\033[1;31m',
+	'orange' : '\033[0;33m', # aka. darkyellow
+    'yellow' : '\033[1;33m',
+    'green'  : '\033[1;32m',
+    'cyan'   : '\033[1;36m',
+    'blue'   : '\033[1;34m',
     'magenta': '\033[1;35m',
-    'cyan': '\033[1;36m',
-    'white': '\033[1;37m',
 
     'blackbg': '\033[40m',
     'redbg': '\033[41m',
@@ -1714,10 +1716,9 @@ def set_theme():
             'text_hi': ansi['darkgray'],
             'unit_lo': ansi['black'],
             'unit_hi': ansi['darkgray'],
-            'colors_lo': (ansi['darkred'], ansi['darkmagenta'], ansi['darkgreen'], ansi['darkblue'],
-                          ansi['darkcyan'], ansi['black'], ansi['red'], ansi['green']),
-            'colors_hi': (ansi['red'], ansi['magenta'], ansi['green'], ansi['blue'],
-                          ansi['cyan'], ansi['darkgray'], ansi['darkred'], ansi['darkgreen']),
+            'colors': (ansi['red'], ansi['darkred'], ansi['darkyellow'], ansi['yellow'], ansi['cyan'], ansi['green'], ansi['darkgreen'], ansi['darkcyan'],
+                          ansi['darkblue'], ansi['blue'], ansi['black'], ansi['darkmagenta'], ansi['magenta'], ansi['darkgray'], ansi['gray'],
+                          ),
         }
     else:
         theme = {
@@ -1735,10 +1736,9 @@ def set_theme():
             'text_hi': ansi['darkgray'],
             'unit_lo': ansi['darkgray'],
             'unit_hi': ansi['darkgray'],
-            'colors_lo': (ansi['red'], ansi['yellow'], ansi['green'], ansi['blue'],
-                          ansi['cyan'], ansi['white'], ansi['darkred'], ansi['darkgreen']),
-            'colors_hi': (ansi['darkred'], ansi['darkyellow'], ansi['darkgreen'], ansi['darkblue'],
-                          ansi['darkcyan'], ansi['gray'], ansi['red'], ansi['green']),
+            'colors': (ansi['red'], ansi['darkred'], ansi['darkyellow'], ansi['yellow'], ansi['cyan'], ansi['green'], ansi['darkgreen'], ansi['darkcyan'],
+                          ansi['darkblue'], ansi['blue'], ansi['black'], ansi['darkmagenta'], ansi['magenta'], ansi['darkgray'], ansi['gray'],
+                          ),
         }
     return theme
 
@@ -2024,12 +2024,12 @@ def cprint(var, type = 'f', width = 4, scale = 1000):
         units = ('B', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
 
     if step == op.delay:
-        colors = theme['colors_lo']
+        colors = theme['colors']
         ctext = theme['text_lo']
         cunit = theme['unit_lo']
         cdone = theme['done_lo']
     else:
-        colors = theme['colors_hi']
+        colors = theme['colors']
         ctext = theme['text_hi']
         cunit = theme['unit_hi']
         cdone = theme['done_hi']
