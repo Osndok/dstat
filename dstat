@@ -526,7 +526,7 @@ class dstat:
         "Display stat results"
         line = ''
         if hasattr(self, 'output'):
-            return cprint(self.output, self.type, self.width, self.scale)
+            return cprint(self.output, self.type, self.width, self.scale, self.nick)
         for i, name in enumerate(self.vars):
             if i < len(self.types):
                 type = self.types[i]
@@ -537,14 +537,14 @@ class dstat:
             else:
                 scale = self.scale
             if isinstance(self.val[name], types.TupleType) or isinstance(self.val[name], types.ListType):
-                line = line + cprintlist(self.val[name], type, self.width, scale)
+                line = line + cprintlist(self.val[name], type, self.width, scale, self.nick)
                 sep = theme['frame'] + char['colon']
                 if i + 1 != len(self.vars):
                     line = line + sep
             else:
                 ### Make sure we don't show more values than we have nicknames
                 if i >= len(self.nick): break
-                line = line + cprint(self.val[name], type, self.width, scale)
+                line = line + cprint(self.val[name], type, self.width, scale, self.nick[i])
                 sep = char['space']
                 if i + 1 != len(self.nick):
                     line = line + sep
@@ -1986,16 +1986,20 @@ def tchg(var, width):
                 ret = '%2dw' % (var / 60 / 24 / 7)
     return ret
 
-def cprintlist(varlist, type, width, scale):
+def cprintlist(varlist, type, width, scale, nick):
     "Return all columns color printed"
     ret = sep = ''
+    i=0
     for var in varlist:
-        ret = ret + sep + cprint(var, type, width, scale)
+        ret = ret + sep + cprint(var, type, width, scale, nick[i])
         sep = char['space']
+        i = i+1
     return ret
 
-def cprint(var, type = 'f', width = 4, scale = 1000):
+def cprint(var, type = 'f', width = 4, scale = 1000, nick='?'):
     "Color print one column"
+
+    #print >>sys.stderr, 'args=', var, type, width, scale, nick
 
     base = 1000
     if scale == 1024:
@@ -2050,14 +2054,23 @@ def cprint(var, type = 'f', width = 4, scale = 1000):
     else:
         raise Exception, 'Type %s not known to dstat.' % type
 
+    ### Not exactly intuitive, because lowest range is the same color; so 90 makes 87-100% idle the same color...
+    IDLE_SQUELNCH=90
+
     ### Set the counter color
-    if ret == '0' or scale <= 0:
+    if ( ret == '0' or scale <= 0 or round(var) <= 0 ) and nick in ('idl'):
+        color = colors[0]
+    elif ret == '0' or scale <= 0:
+        color = colors[len(colors)-1]
+    elif type in ('p') and round(var) >= IDLE_SQUELNCH and nick in ('idl'):
         color = colors[len(colors)-1]
     elif type in ('p') and round(var) >= 100.0:
-        color = colors[0]
+		color = colors[0]
+    elif type in ('p') and nick in ('idl'):
+        color_index = int(round((len(colors)-1)*(var)/IDLE_SQUELNCH))
+        color = colors[color_index]
     elif type in ('p'):
         color_index = int(round((len(colors)-1)*(100-var)/100))
-        #print >>sys.stderr, color_index
         color = colors[color_index]
     elif scale not in (1000, 1024):
         color = colors[int(var/scale)%len(colors)]
