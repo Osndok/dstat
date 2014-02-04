@@ -2051,14 +2051,14 @@ def cprint(var, type = 'f', width = 4, scale = 1000):
         raise Exception, 'Type %s not known to dstat.' % type
 
     ### Set the counter color
-    if ret == '0':
-        color = cunit
-    elif scale <= 0:
-        color = ctext
+    if ret == '0' or scale <= 0:
+        color = colors[len(colors)-1]
     elif type in ('p') and round(var) >= 100.0:
-        color = cdone
-#    elif type in ('p'):
-#        color = colors[int(round(var)/scale)%len(colors)]
+        color = colors[0]
+    elif type in ('p'):
+        color_index = int(round((len(colors)-1)*(100-var)/100))
+        #print >>sys.stderr, color_index
+        color = colors[color_index]
     elif scale not in (1000, 1024):
         color = colors[int(var/scale)%len(colors)]
     elif type in ('b', 'd', 'f'):
