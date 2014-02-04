@@ -1996,10 +1996,27 @@ def cprintlist(varlist, type, width, scale, nick):
         i = i+1
     return ret
 
+global_maxima = {}
+
 def cprint(var, type = 'f', width = 4, scale = 1000, nick='?'):
     "Color print one column"
 
-    #print >>sys.stderr, 'args=', var, type, width, scale, nick
+    global global_maxima
+
+    try:
+        max = global_maxima[nick]
+    except KeyError:
+        # A hokey way to avoid divide-by-zero... never have a 0 maxima...
+        global_maxima[nick] = max = 1
+
+    if ( var > max ):
+        global_maxima[nick] = max = var
+
+    percent = round(100*var/max)
+    if (percent <   0): percent = 0
+    if (percent > 100): percent = 100
+
+    #print >>sys.stderr, 'args=', nick, type, var, max, percent
 
     base = 1000
     if scale == 1024:
@@ -2072,12 +2089,15 @@ def cprint(var, type = 'f', width = 4, scale = 1000, nick='?'):
     elif type in ('p'):
         color_index = int(round((len(colors)-1)*(100-var)/100))
         color = colors[color_index]
-    elif scale not in (1000, 1024):
-        color = colors[int(var/scale)%len(colors)]
-    elif type in ('b', 'd', 'f'):
-        color = colors[c%len(colors)]
     else:
-        color = ctext
+        color = colors[int(round((len(colors)-1)*(100-percent)/100))]
+
+    #elif scale not in (1000, 1024):
+    #    color = colors[int(var/scale)%len(colors)]
+    #elif type in ('b', 'd', 'f'):
+    #    color = colors[c%len(colors)]
+    #else:
+    #    color = ctext
 
     ### Justify value to left if string
     if type in ('s',):
